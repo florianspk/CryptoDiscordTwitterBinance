@@ -35,8 +35,8 @@ def get_api_response(captureDate):
 # Connect to the local database
 try:
     cnx = mysql.connector.connect(user='root', password='root',
-                                  host='florianspk.fr',
-                                  database='rapidapi_examples')
+                                  host='192.168.1.75',
+                                  database='Scape_twitter')
 except mysql.connector.Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
         print("Something is wrong with your user name or password")
