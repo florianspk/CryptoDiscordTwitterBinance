@@ -25,7 +25,7 @@ headers = {
 
 # Define function to get json response from rapidapi
 def get_api_response(captureDate):
-    api_conn.request("GET", "/download?date=" + str(captureDate) + "&country=US", headers=headers)
+    api_conn.request("GET", "/download?date=" + str(captureDate) + "&country=FR", headers=headers)
     res = api_conn.getresponse()
     data = res.read().decode("utf-8")
     thejson = json.loads(data)
@@ -34,8 +34,8 @@ def get_api_response(captureDate):
 
 # Connect to the local database
 try:
-    cnx = mysql.connector.connect(user='root', password='',
-                                  host='localhost',
+    cnx = mysql.connector.connect(user='root', password='root',
+                                  host='florianspk.fr',
                                   database='rapidapi_examples')
 except mysql.connector.Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
