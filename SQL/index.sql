@@ -3,6 +3,7 @@ CREATE TABLE `twitter_analyze` (
   `id_tweet` varchar(255) NOT NULL ,
   `user_id` int NOT NULL ,
   `content` varchar(255) NOT NULL ,
+  `crypto` varchar(255) NOT NULL ,
   `date_post` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

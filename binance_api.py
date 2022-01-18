@@ -62,7 +62,11 @@ class BinanceApi:
                      quantity -- {}
                      price -- {}'''.format(binance_pair, quantity, price)
                              )
-
+            print('''buy order successfully placed :
+                                 binance_pair {}
+                                 quantity -- {}
+                                 price -- {}'''.format(binance_pair, quantity, price)
+                  )
             # Runs on another thread because it will wait until the buy order is completed
             thread = Thread(target=self.place_sell_order, args=(binance_pair, quantity, sell_price))
             thread.start()
@@ -75,6 +79,7 @@ class BinanceApi:
                 error_message += e
 
             self.notify.send(error_message)
+            print(error_message)
 
     def place_sell_order(self, binance_pair: str, quantity: int, price: float) -> None:
         """Wait until the corresponding buy order is completed, and then try to place a sell order
@@ -104,6 +109,11 @@ class BinanceApi:
                     quantity -- {}
                     sell_price -- {}'''.format(binance_pair, quantity, price)
                              )
-
+            print('''sell order successfully placed :
+                                binance_pair -- {}
+                                quantity -- {}
+                                sell_price -- {}'''.format(binance_pair, quantity, price)
+                  )
         except BinanceAPIException as e:
             self.notify.send('Cannot place sell order, check the binance pair and the quantity/price\n' + e)
+            print('Cannot place sell order, check the binance pair and the quantity/price\n' + e)

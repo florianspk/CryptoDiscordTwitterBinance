@@ -32,13 +32,14 @@ NOTIFICATION_ENDPOINT = parser.get('notification', 'endpoint')
 # Setup easy notification on any device, see https://notify.run/ for configuration
 notify = Notify(endpoint=NOTIFICATION_ENDPOINT)
 
+
 # OAuth with Twitter API
 auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_KEY_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 twitter_api = tweepy.API(auth)
 
 # OAuth with Binance API
-binance_api = BinanceApi(BINANCE_API_KEY, BINANCE_API_KEY_SECRET, notification_api=notify)
+binance_api = BinanceApi(BINANCE_API_KEY, BINANCE_API_KEY_SECRET, notify)
 
 
 # Streaming for listening to tweets
@@ -93,6 +94,7 @@ def trade_coin(binance_pair: str, percentage_usdt_balance: float) -> None:
 
     else:
         notify.send(f'Too much volatility on the pair ${binance_pair}')
+        print(f'Too much volatility on the pair ${binance_pair}')
 
 
 class TweetStreamListener(tweepy.StreamListener):
@@ -100,6 +102,7 @@ class TweetStreamListener(tweepy.StreamListener):
         # Skip tweets that are not posted by any of the followed users (replies, retweets from other users ..)
         if status.user.id_str not in FOLLOWED_USERS:
             return
+        print(f'New message form : {status.user.id_str} - {status.text}')
 
         binance_pair = check_sentence_for_coins(status.text)
 
@@ -109,6 +112,9 @@ class TweetStreamListener(tweepy.StreamListener):
                 trade_coin(binance_pair.upper(), 0.1)  # 10% in
             else:
                 notify.send(f'negative sentence : {status.text}')
+                print(f'negative sentence : {status.text}')
+        else:
+            print("NO_PAIR_FIND")
 
 # Start the stream
 tweetStreamListener = TweetStreamListener()
