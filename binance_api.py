@@ -7,9 +7,8 @@ from time import sleep
 
 class BinanceApi:
 
-    def __init__(self, api_key, api_key_secret, notification_api) -> None:
+    def __init__(self, api_key, api_key_secret) -> None:
         self.client = Client(api_key, api_key_secret)
-        self.notify = notification_api
 
     def get_usdt_balance(self) -> float:
         """Returns the USDT balance of the account
@@ -57,11 +56,6 @@ class BinanceApi:
                 price=price
             )
 
-            self.notify.send('''buy order successfully placed :
-                     binance_pair -- {}
-                     quantity -- {}
-                     price -- {}'''.format(binance_pair, quantity, price)
-                             )
             print('''buy order successfully placed :
                                  binance_pair {}
                                  quantity -- {}
@@ -77,8 +71,6 @@ class BinanceApi:
                 error_message += f'Not enough USDT to purchase ${binance_pair}'
             else:
                 error_message += e
-
-            self.notify.send(error_message)
             print(error_message)
 
     def place_sell_order(self, binance_pair: str, quantity: int, price: float) -> None:
@@ -104,16 +96,10 @@ class BinanceApi:
                 price=price
             )
 
-            self.notify.send('''sell order successfully placed :
-                    binance_pair -- {}
-                    quantity -- {}
-                    sell_price -- {}'''.format(binance_pair, quantity, price)
-                             )
             print('''sell order successfully placed :
                                 binance_pair -- {}
                                 quantity -- {}
                                 sell_price -- {}'''.format(binance_pair, quantity, price)
                   )
         except BinanceAPIException as e:
-            self.notify.send('Cannot place sell order, check the binance pair and the quantity/price\n' + e)
             print('Cannot place sell order, check the binance pair and the quantity/price\n' + e)
