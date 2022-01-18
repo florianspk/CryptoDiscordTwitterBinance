@@ -1,10 +1,13 @@
 from binance_api import BinanceApi
 from textblob import TextBlob
-import discord
+# import discord
 import configparser
 import tweepy
+import mysql.connector
+from mysql.connector import errorcode
+from datetime import datetime
 
-client = discord.Client()
+# client = discord.Client()
 # Read 'conf.ini' file to get twitter API credentials and other constants
 parser = configparser.ConfigParser()
 parser.read('conf.ini')
@@ -27,9 +30,10 @@ TRACKED_COINS = {
 NEGATIVES_WORDS = {
     word: polarity for word, polarity in parser.items('negative_words')
 }
+# Discord Notification
+# NOTIFICATION_TOKEN = parser.get('Discord', 'bot_token')
+# client.run(NOTIFICATION_TOKEN)
 
-NOTIFICATION_TOKEN = parser.get('Discord', 'bot_token')
-client.run(NOTIFICATION_TOKEN)
 
 # OAuth with Twitter API
 auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_KEY_SECRET)
@@ -39,10 +43,18 @@ twitter_api = tweepy.API(auth)
 # OAuth with Binance API
 binance_api = BinanceApi(BINANCE_API_KEY, BINANCE_API_KEY_SECRET)
 
+# BDD
 
-@client.event
-async def on_ready():
-    print("Le bot est prêt !")
+DB_HOST = parser.get('Database', 'host')
+DB_USER = parser.get('Database', 'user')
+DB_PASSWORD = parser.get('Database', 'password')
+DB_PORT = parser.get('Database', 'port')
+DB_DATABASE = parser.get('Database', 'database')
+
+
+# @client.event
+# async def on_ready():
+#     print("Le bot est prêt !")
 
 
 # Streaming for listening to tweets
@@ -110,10 +122,31 @@ class TweetStreamListener(tweepy.StreamListener):
 
         if binance_pair != 'NO_PAIR':
             # Sentiment analysis => only buy if the sentence is positive
-            if is_positive_sentence(status.text):
-                trade_coin(binance_pair.upper(), 0.1)  # 10% in
-            else:
-                print(f'negative sentence : {status.text}')
+            try:
+                cnx = mysql.connector.connect(user=DB_USER, password=DB_PASSWORD,
+                                              host=DB_HOST, port=DB_PORT,
+                                              database=DB_DATABASE)
+                mycursor = cnx.cursor()
+                sql = "INSERT INTO Scape_twitter.twitter_analyze (user_id, content, crypto, date_post, bot_good_sentence ) VALUES (%s, %s, %s, %s, %s);"
+                now = datetime.now()
+                createAt = now.strftime('%Y-%m-%d %H:%M:%S')
+                val = (status.user.id_str, status.text, binance_pair, createAt, is_positive_sentence(status.text))
+                mycursor.execute(sql, val)
+                cnx.commit()
+                print(mycursor.rowcount, "was inserted")
+                if is_positive_sentence(status.text):
+                    print("TODO Traide")
+                    # TODO FAIRE UNE DEMANDE AVANT DE TRADE
+                    # trade_coin(binance_pair.upper(), 0.1)  # 10% in
+                else:
+                    print(f'negative sentence : {status.text}')
+            except mysql.connector.Error as err:
+                if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                    print("Something is wrong with your user name or password")
+                elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                    print("Database does not exist")
+                else:
+                    print(err)
         else:
             print("NO_PAIR_FIND")
 
