@@ -1,5 +1,5 @@
 #  CryptoDiscordTwitterBinance
-
+![Binance Image](https://images.assetsdelivery.com/compings_v2/ivanbabydov/ivanbabydov2102/ivanbabydov210200099.jpg?raw=true)
 ## BETA
 
 This project consists in analysing the different tweets of a twitter account when a tweet is made by a user that is indicated in the conf.ini. Once the tweet is made there is a first analysis which indicates if this tweet is negative or positive and it records this in the database.
